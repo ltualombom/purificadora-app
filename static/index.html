@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaControl Pro - Gestión de Embotelladora</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-brand-700 via-brand-600 to-teal-600 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                        <i class="fa-solid font-bold fa-bottle-water text-2xl text-cyan-200"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl leading-tight">AquaControl <span class="text-cyan-200 font-light">Pro</span></h1>
+                        <p class="text-xs text-brand-100 hidden sm:block">Control Integral: POS, Inventario, Compras, Caja y Envases</p>
+                    </div>
+                </div>
+                
+                <!-- Quick Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openModal('modalVenta')" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-3 py-2 rounded-lg text-sm shadow transition duration-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-cart-shopping"></i> <span>Nueva Venta (POS)</span>
+                    </button>
+                    <button onclick="openModal('modalCompra')" class="bg-white/10 hover:bg-white/20 text-white font-medium px-3 py-2 rounded-lg text-sm transition duration-200 flex items-center gap-1.5 border border-white/20">
+                        <i class="fa-solid fa-truck-field"></i> <span class="hidden md:inline">Nueva Compra</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-2 sm:space-x-6 overflow-x-auto custom-scrollbar" id="navTabs">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn py-3.5 px-3 text-sm font-semibold border-b-2 border-brand-600 text-brand-600 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </button>
+                <button onclick="switchTab('inventario')" id="tab-inventario" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-brand-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventario & Stock
+                </button>
+                <button onclick="switchTab('ventas')" id="tab-ventas" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-brand-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-receipt"></i> Historial de Ventas
+                </button>
+                <button onclick="switchTab('compras')" id="tab-compras" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-brand-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-truck-ramped"></i> Compras Insumos
+                </button>
+                <button onclick="switchTab('clientes')" id="tab-clientes" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-brand-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-users"></i> Clientes y Deudas
+                </button>
+                <button onclick="switchTab('caja')" id="tab-caja" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-brand-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Flujo de Caja
+                </button>
+                <button onclick="switchTab('botellones')" id="tab-botellones" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-brand-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-jar-wheat"></i> Control Envases
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Global Filters Banner -->
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                    <i class="fa-solid fa-filter"></i> Filtros de Fecha:
+                </span>
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-500">Desde:</label>
+                    <input type="date" id="filterFechaInicio" onchange="renderApp()" class="text-sm border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-500">Hasta:</label>
+                    <input type="date" id="filterFechaFin" onchange="renderApp()" class="text-sm border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <button onclick="resetFiltros()" class="text-xs text-slate-500 hover:text-brand-600 underline">Limpiar</button>
+            </div>
+            
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button onclick="exportData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-lg border border-slate-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-download"></i> Respaldar (JSON)
+                </button>
+                <button onclick="document.getElementById('importInput').click()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-lg border border-slate-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-upload"></i> Cargar Datos
+                </button>
+                <input type="file" id="importInput" onchange="importData(event)" class="hidden" accept=".json">
+            </div>
+        </div>
+
+        <!-- SECTION 1: DASHBOARD -->
+        <section id="sec-dashboard" class="space-y-6">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-emerald-500 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Cobrado (Ingresos)</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="kpiIngresos">$0.00</h3>
+                        <p class="text-xs text-emerald-600 mt-1 font-medium"><i class="fa-solid fa-arrow-up"></i> Entradas de dinero</p>
+                    </div>
+                    <div class="bg-emerald-50 p-2.5 rounded-lg text-emerald-600">
+                        <i class="fa-solid fa-hand-holding-dollar text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-rose-500 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Gastos y Compras</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="kpiEgresos">$0.00</h3>
+                        <p class="text-xs text-rose-600 mt-1 font-medium"><i class="fa-solid fa-arrow-down"></i> Salidas / Insumos</p>
+                    </div>
+                    <div class="bg-rose-50 p-2.5 rounded-lg text-rose-600">
+                        <i class="fa-solid fa-money-bill-wave text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-brand-500 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Balance Neto Caja</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="kpiBalance">$0.00</h3>
+                        <p class="text-xs text-slate-500 mt-1">Disponible Real</p>
+                    </div>
+                    <div class="bg-brand-50 p-2.5 rounded-lg text-brand-600">
+                        <i class="fa-solid fa-scale-balanced text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-amber-500 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Por Cobrar ($)</p>
+                        <h3 class="text-2xl font-bold text-amber-600 mt-1" id="kpiPorCobrar">$0.00</h3>
+                        <p class="text-xs text-amber-700 mt-1 font-medium" id="kpiClientesDeudoresCount">0 clientes deben</p>
+                    </div>
+                    <div class="bg-amber-50 p-2.5 rounded-lg text-amber-600">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-cyan-500 flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Envases en Calle</p>
+                        <h3 class="text-2xl font-bold text-cyan-600 mt-1" id="kpiBotellonesCalle">0</h3>
+                        <p class="text-xs text-cyan-700 mt-1 font-medium">Botellones prestados</p>
+                    </div>
+                    <div class="bg-cyan-50 p-2.5 rounded-lg text-cyan-600">
+                        <i class="fa-solid fa-jar text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Charts / Quick Summaries -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Estado Stock en Planta -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-brand-600"></i> Stock Crítico Insumos
+                        </h3>
+                        <button onclick="switchTab('inventario')" class="text-xs font-semibold text-brand-600 hover:underline">Ver Todo</button>
+                    </div>
+                    <div id="dashStockList" class="space-y-3">
+                        <!-- JS Populated -->
+                    </div>
+                </div>
+
+                <!-- Top Clientes Deudores -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Cuentas por Cobrar
+                        </h3>
+                        <button onclick="switchTab('clientes')" class="text-xs font-semibold text-brand-600 hover:underline">Ver Todos</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs uppercase bg-slate-50 text-slate-500">
+                                <tr>
+                                    <th class="py-2.5 px-3">Cliente</th>
+                                    <th class="py-2.5 px-3 text-right">Deuda</th>
+                                    <th class="py-2.5 px-3 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashTableDeudores" class="divide-y divide-slate-100">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Clientes con Envases -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-jar-wheat text-cyan-600"></i> Botellones en Posesión
+                        </h3>
+                        <button onclick="switchTab('botellones')" class="text-xs font-semibold text-brand-600 hover:underline">Ver Todos</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs uppercase bg-slate-50 text-slate-500">
+                                <tr>
+                                    <th class="py-2.5 px-3">Cliente</th>
+                                    <th class="py-2.5 px-3 text-right">Cantidad</th>
+                                    <th class="py-2.5 px-3 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashTableBotellones" class="divide-y divide-slate-100">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movimientos Recientes -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Últimas Operaciones Registradas
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase bg-slate-50 text-slate-500">
+                            <tr>
+                                <th class="py-2.5 px-3">Fecha</th>
+                                <th class="py-2.5 px-3">Tipo</th>
+                                <th class="py-2.5 px-3">Cliente / Proveedor / Detalle</th>
+                                <th class="py-2.5 px-3">Categoría</th>
+                                <th class="py-2.5 px-3 text-right">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashTableUltimosMovs" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INVENTARIO & STOCK -->
+        <section id="sec-inventario" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">Inventario de Productos e Insumos</h3>
+                    <p class="text-xs text-slate-500">Control físico de existencias en planta (tapas, sellos, botellones llenos/vacíos)</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="openModal('modalAjusteStock')" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow">
+                        <i class="fa-solid fa-sliders"></i> Ajustar Stock / Merma
+                    </button>
+                    <button onclick="openModal('modalItemInventario')" class="w-full md:w-auto bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow">
+                        <i class="fa-solid fa-plus"></i> Nuevo Ítem
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="inventarioCards">
+                <!-- JS Populated Cards -->
+            </div>
+        </section>
+
+        <!-- SECTION 3: VENTAS / POS -->
+        <section id="sec-ventas" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <input type="text" id="searchVenta" oninput="renderVentas()" placeholder="Buscar por cliente o folio..." class="text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none w-full sm:w-64">
+                </div>
+                <button onclick="openModal('modalVenta')" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow">
+                    <i class="fa-solid fa-cart-plus text-base"></i> Abrir Punto de Venta (POS)
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Fecha / Folio</th>
+                                <th class="py-3 px-4">Cliente</th>
+                                <th class="py-3 px-4">Detalle Productos</th>
+                                <th class="py-3 px-4 text-center">Método / Estado</th>
+                                <th class="py-3 px-4 text-right">Total ($)</th>
+                                <th class="py-3 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaVentas" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: COMPRAS INSUMOS -->
+        <section id="sec-compras" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">Compras a Proveedores</h3>
+                    <p class="text-xs text-slate-500">Ingreso de materias primas, insumos y mantenimiento (Suma stock y registra Egreso)</p>
+                </div>
+                <button onclick="openModal('modalCompra')" class="w-full md:w-auto bg-slate-800 hover:bg-slate-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Registrar Compra
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Fecha</th>
+                                <th class="py-3 px-4">Proveedor</th>
+                                <th class="py-3 px-4">Ítem / Insumo</th>
+                                <th class="py-3 px-4 text-center">Cantidad</th>
+                                <th class="py-3 px-4 text-right">Precio Unit.</th>
+                                <th class="py-3 px-4 text-right">Total ($)</th>
+                                <th class="py-3 px-4 text-center">Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaCompras" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: CLIENTES -->
+        <section id="sec-clientes" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchCliente" oninput="renderClientes()" placeholder="Buscar cliente por nombre o teléfono..." class="w-full text-sm pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="openModal('modalCliente')" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Cliente</th>
+                                <th class="py-3 px-4">Teléfono / Dirección</th>
+                                <th class="py-3 px-4 text-center">Deuda ($)</th>
+                                <th class="py-3 px-4 text-center">Botellones en Posesión</th>
+                                <th class="py-3 px-4 text-center">Acciones Rápidas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaClientes" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: CAJA -->
+        <section id="sec-caja" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <select id="filterTipoMov" onchange="renderMovimientos()" class="text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <option value="TODOS">Todos los tipos</option>
+                        <option value="INGRESO">Ingresos (+)</option>
+                        <option value="EGRESO">Egresos (-)</option>
+                    </select>
+                    <input type="text" id="searchMov" oninput="renderMovimientos()" placeholder="Buscar en concepto o cliente..." class="text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none w-full sm:w-64">
+                </div>
+                <button onclick="openModal('modalMovimiento')" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i> Movimiento Manual Caja
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Fecha</th>
+                                <th class="py-3 px-4">Tipo</th>
+                                <th class="py-3 px-4">Cliente / Tercero</th>
+                                <th class="py-3 px-4">Categoría / Concepto</th>
+                                <th class="py-3 px-4 text-right">Monto</th>
+                                <th class="py-3 px-4 text-center">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaMovimientos" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: CONTROL DE BOTELLONES -->
+        <section id="sec-botellones" class="space-y-6 hidden">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">Historial de Préstamo y Retorno de Envases</h3>
+                    <p class="text-xs text-slate-500">Monitoreo de garrafones prestados o devueltos por cliente</p>
+                </div>
+                <button onclick="openModal('modalBotellon')" class="w-full md:w-auto bg-cyan-600 hover:bg-cyan-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-left"></i> Registrar Préstamo / Entrada
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Fecha</th>
+                                <th class="py-3 px-4">Cliente</th>
+                                <th class="py-3 px-4">Operación</th>
+                                <th class="py-3 px-4 text-center">Cantidad (Envases)</th>
+                                <th class="py-3 px-4">Nota / Comentario</th>
+                                <th class="py-3 px-4 text-center">Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaMovBotellones" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL VENTA (POS) -->
+    <div id="modalVenta" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeModal('modalVenta')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2 text-emerald-600">
+                <i class="fa-solid fa-cash-register"></i> Punto de Venta (POS)
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">Emisión de venta directa o crédito de productos de agua</p>
+
+            <form id="formVenta" onsubmit="guardarVenta(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cliente *</label>
+                        <select id="vtaClienteId" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha de Venta</label>
+                        <input type="date" id="vtaFecha" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Detalle de Ítems a Vender -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Seleccionar Producto / Servicio</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <select id="vtaProductoId" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                <option value="REC_20L" data-precio="1.50">Recarga Botellón 20L ($1.50)</option>
+                                <option value="BOT_NUEVO_20L" data-precio="7.00">Botellón Nuevo + Agua 20L ($7.00)</option>
+                                <option value="POUCH_AGUA" data-precio="0.25">Funda/Pouch de Agua 500ml ($0.25)</option>
+                                <option value="DISPENSADOR" data-precio="12.00">Dispensador de Agua ($12.00)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="number" id="vtaCant" min="1" value="1" placeholder="Cant." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" onclick="agregarItemVenta()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-plus mr-1"></i> Añadir Ítem
+                        </button>
+                    </div>
+
+                    <!-- Lista de Ítems Añadidos -->
+                    <table class="w-full text-xs text-left mt-2">
+                        <thead class="bg-slate-200 text-slate-600 font-bold">
+                            <tr>
+                                <th class="py-1.5 px-2">Producto</th>
+                                <th class="py-1.5 px-2 text-center">Cant</th>
+                                <th class="py-1.5 px-2 text-right">P.Unit</th>
+                                <th class="py-1.5 px-2 text-right">Subtotal</th>
+                                <th class="py-1.5 px-2 text-center">Quitar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vtaTablaItems" class="divide-y divide-slate-200">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Configuración de Pago y Botellones -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50/60 p-4 rounded-xl border border-emerald-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Forma de Pago *</label>
+                        <select id="vtaFormaPago" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                            <option value="CONTADO">Contado (Efectivo / Transferencia)</option>
+                            <option value="CREDITO">A Crédito (Añadir a Deuda Cliente)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">¿Prestar / Dejar Envases Vacíos?</label>
+                        <input type="number" id="vtaBotellonesPrestados" min="0" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white" placeholder="Cant. botellones prestados">
+                    </div>
+                </div>
+
+                <!-- Total Summary -->
+                <div class="flex justify-between items-center pt-2">
+                    <div>
+                        <span class="text-xs text-slate-500 block">Monto Total Venta:</span>
+                        <span class="text-2xl font-black text-emerald-600" id="vtaTotalTxt">$0.00</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeModal('modalVenta')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                        <button type="submit" class="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md">Finalizar Venta</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL COMPRA (PROVEEDORES) -->
+    <div id="modalCompra" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalCompra')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-truck-field text-slate-700"></i> Registrar Compra de Insumos
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">Aumenta stock y genera salida de caja de dinero</p>
+
+            <form id="formCompra" onsubmit="guardarCompra(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Proveedor *</label>
+                    <input type="text" id="cmpProveedor" required placeholder="Ej. Plastiquim S.A. / Plastitapas" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Ítem del Inventario a Reabastecer *</label>
+                    <select id="cmpItemId" required onchange="calcTotalCompra()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <!-- Populated JS -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cantidad Comprada *</label>
+                        <input type="number" min="1" id="cmpCantidad" required oninput="calcTotalCompra()" value="100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Unitario ($) *</label>
+                        <input type="number" step="0.001" id="cmpPrecioUnit" required oninput="calcTotalCompra()" placeholder="0.05" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha Compra</label>
+                        <input type="date" id="cmpFecha" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Total Calculado ($)</label>
+                        <input type="number" step="0.01" id="cmpTotal" readonly class="w-full bg-slate-100 font-bold text-slate-800 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalCompra')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 shadow">Registrar Compra</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AJUSTE DE STOCK / MERMA -->
+    <div id="modalAjusteStock" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalAjusteStock')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-amber-500"></i> Ajuste Manual de Inventario
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">Corrige el stock por mermas, daños o conteo físico</p>
+
+            <form id="formAjusteStock" onsubmit="guardarAjusteStock(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Ítem a Ajustar *</label>
+                    <select id="ajusteItemId" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <!-- Populated JS -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Ajuste</label>
+                        <select id="ajusteTipo" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="RESTAR">Disminuir Stock (Merma/Daño)</option>
+                            <option value="SUMAR">Aumentar Stock (Ingreso manual)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cantidad *</label>
+                        <input type="number" min="1" id="ajusteCantidad" required value="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Motivo / Observación</label>
+                    <input type="text" id="ajusteMotivo" required placeholder="Ej. Tapas dañadas en embotellado" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalAjusteStock')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow">Aplicar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO ITEM INVENTARIO -->
+    <div id="modalItemInventario" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalItemInventario')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Nuevo Ítem de Inventario</h3>
+
+            <form id="formNuevoItem" onsubmit="guardarNuevoItem(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Ítem *</label>
+                    <input type="text" id="itemName" required placeholder="Ej. Filtros de Carbón Activado" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
+                        <select id="itemCategoria" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="INSUMO">Insumo / Materia Prima</option>
+                            <option value="PRODUCTO">Producto Terminado</option>
+                            <option value="ENVASES">Envase / Garrafón</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Unidad de Medida</label>
+                        <input type="text" id="itemUnidad" required placeholder="Unidades, Unid, Metros..." value="Unidades" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Stock Inicial</label>
+                        <input type="number" min="0" id="itemStockInicial" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Stock Mínimo (Alerta)</label>
+                        <input type="number" min="1" id="itemStockMin" value="10" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalItemInventario')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow">Guardar Ítem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CLIENTE -->
+    <div id="modalCliente" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalCliente')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-4" id="modalClienteTitle">Nuevo Cliente</h3>
+            <form id="formCliente" onsubmit="guardarCliente(event)" class="space-y-4">
+                <input type="hidden" id="clienteId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre Completo *</label>
+                    <input type="text" id="clienteNombre" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Ej. Purificadora San Mateo">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Teléfono</label>
+                    <input type="text" id="clienteTelefono" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Ej. 0991234567">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Dirección / Referencia</label>
+                    <textarea id="clienteDireccion" rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Av. Principal #123..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Deuda Inicial ($)</label>
+                        <input type="number" step="0.01" id="clienteDeudaInicial" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Botellones Iniciales</label>
+                        <input type="number" id="clienteBotellonesIniciales" value="0" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalCliente')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow">Guardar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MOVIMIENTO MANUAL DINERO -->
+    <div id="modalMovimiento" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalMovimiento')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Registrar Movimiento Manual de Caja</h3>
+            <form id="formMovimiento" onsubmit="guardarMovimiento(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Movimiento</label>
+                        <select id="movTipo" onchange="actualizarCategoriasMov()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="INGRESO">INGRESO (+)</option>
+                            <option value="EGRESO">EGRESO (-)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha</label>
+                        <input type="date" id="movFecha" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Cliente / Tercero (Opcional)</label>
+                    <select id="movClienteId" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <option value="">-- General / Sin Cliente --</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
+                        <select id="movCategoria" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Monto ($) *</label>
+                        <input type="number" step="0.01" min="0.01" id="movMonto" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="0.00">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Detalle / Concepto</label>
+                    <input type="text" id="movDetalle" placeholder="Ej. Pago de energía eléctrica" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalMovimiento')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow">Guardar Caja</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MOVIMIENTO BOTELLONES -->
+    <div id="modalBotellon" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalBotellon')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Control Directo de Envases</h3>
+            <form id="formBotellon" onsubmit="guardarMovBotellon(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Cliente *</label>
+                    <select id="botClienteId" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <!-- Populated JS -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Acción</label>
+                        <select id="botTipo" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="PRESTAMO">Entrega / Préstamo (+)</option>
+                            <option value="DEVOLUCION">Devolución / Entrada (-)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cantidad Botellones *</label>
+                        <input type="number" min="1" id="botCantidad" required value="1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha</label>
+                    <input type="date" id="botFecha" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nota / Observación</label>
+                    <input type="text" id="botNota" placeholder="Ej. Entregados llenos en camión" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalBotellon')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-700 shadow">Registrar Envases</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ABONO RAPIDO -->
+    <div id="modalAbonoRapido" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal('modalAbonoRapido')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-base font-bold text-slate-800 mb-1">Registrar Abono a Deuda</h3>
+            <p class="text-xs text-slate-500 mb-4" id="abonoClienteNombre">Cliente</p>
+            <form id="formAbonoRapido" onsubmit="guardarAbonoRapido(event)" class="space-y-4">
+                <input type="hidden" id="abonoClienteId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Monto del Abono ($)</label>
+                    <input type="number" step="0.01" min="0.01" id="abonoMonto" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nota</label>
+                    <input type="text" id="abonoNota" value="Abono a saldo pendiente" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalAbonoRapido')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow">Guardar Abono</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg" class="text-sm font-medium">Operación realizada</span>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // LocalStorage Keys
+        const KEY_CLIENTES = 'aqua_v2_clientes';
+        const KEY_MOVS = 'aqua_v2_movimientos';
+        const KEY_BOTELLONES = 'aqua_v2_botellones';
+        const KEY_INVENTARIO = 'aqua_v2_inventario';
+        const KEY_VENTAS = 'aqua_v2_ventas';
+        const KEY_COMPRAS = 'aqua_v2_compras';
+
+        // Seed Data
+        const initialClientes = [
+            { id: 'cli-gen', nombre: 'Cliente Mostrador / General', telefono: '-', direccion: 'Venta Directa', deudaInicial: 0, botellonesIniciales: 0 },
+            { id: 'cli-1', nombre: 'Distribuidora El Sol', telefono: '0991112233', direccion: 'Av. Las Palmas #45', deudaInicial: 50.00, botellonesIniciales: 10 },
+            { id: 'cli-2', nombre: 'Tienda Doña Maria', telefono: '0984445566', direccion: 'Calle Central y 5ta', deudaInicial: 12.50, botellonesIniciales: 4 }
+        ];
+
+        const initialInventario = [
+            { id: 'inv-1', nombre: 'Tapas Azules Antiderrames', categoria: 'INSUMO', stock: 1500, stockMin: 300, unidad: 'Unidades' },
+            { id: 'inv-2', nombre: 'Sellos Térmicos de Seguridad', categoria: 'INSUMO', stock: 1200, stockMin: 250, unidad: 'Unidades' },
+            { id: 'inv-3', nombre: 'Fundas/Pouch 500ml', categoria: 'INSUMO', stock: 800, stockMin: 200, unidad: 'Unidades' },
+            { id: 'inv-4', nombre: 'Botellones Llenos 20L', categoria: 'PRODUCTO', stock: 45, stockMin: 15, unidad: 'Botellones' },
+            { id: 'inv-5', nombre: 'Botellones Vacíos en Planta', categoria: 'ENVASES', stock: 30, stockMin: 10, unidad: 'Botellones' }
+        ];
+
+        const initialMovimientos = [
+            { id: 'mov-1', fecha: getTodayDate(), tipo: 'INGRESO', clienteId: 'cli-1', categoria: 'Abono de Cliente', monto: 20.00, detalle: 'Abono a deuda previa' }
+        ];
+
+        // State Variables
+        let clientes = [];
+        let inventario = [];
+        let movimientos = [];
+        let botellones = [];
+        let ventas = [];
+        let compras = [];
+        let currentVentaItems = [];
+
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(amount || 0);
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = message;
+            toastIcon.className = isError ? 'fa-solid fa-circle-exclamation text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function loadData() {
+            clientes = JSON.parse(localStorage.getItem(KEY_CLIENTES)) || initialClientes;
+            inventario = JSON.parse(localStorage.getItem(KEY_INVENTARIO)) || initialInventario;
+            movimientos = JSON.parse(localStorage.getItem(KEY_MOVS)) || initialMovimientos;
+            botellones = JSON.parse(localStorage.getItem(KEY_BOTELLONES)) || [];
+            ventas = JSON.parse(localStorage.getItem(KEY_VENTAS)) || [];
+            compras = JSON.parse(localStorage.getItem(KEY_COMPRAS)) || [];
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem(KEY_CLIENTES, JSON.stringify(clientes));
+            localStorage.setItem(KEY_INVENTARIO, JSON.stringify(inventario));
+            localStorage.setItem(KEY_MOVS, JSON.stringify(movimientos));
+            localStorage.setItem(KEY_BOTELLONES, JSON.stringify(botellones));
+            localStorage.setItem(KEY_VENTAS, JSON.stringify(ventas));
+            localStorage.setItem(KEY_COMPRAS, JSON.stringify(compras));
+        }
+
+        // Calculations
+        function getClienteCalculatedData(clienteId) {
+            const cliente = clientes.find(c => c.id === clienteId);
+            if (!cliente) return { saldoDeuda: 0, botellonesPrestados: 0 };
+
+            // Ventas a crédito del cliente
+            let totalVentasCredito = ventas
+                .filter(v => v.clienteId === clienteId && v.formaPago === 'CREDITO')
+                .reduce((sum, v) => sum + Number(v.total), 0);
+
+            // Abonos / Pagos
+            let totalAbonado = movimientos
+                .filter(m => m.clienteId === clienteId && m.tipo === 'INGRESO')
+                .reduce((sum, m) => sum + Number(m.monto), 0);
+
+            const saldoDeuda = Math.max(0, (cliente.deudaInicial || 0) + totalVentasCredito - totalAbonado);
+
+            // Botellones prestados
+            let prestados = botellones
+                .filter(b => b.clienteId === clienteId && b.tipo === 'PRESTAMO')
+                .reduce((sum, b) => sum + Number(b.cantidad), 0);
+
+            let devueltos = botellones
+                .filter(b => b.clienteId === clienteId && b.tipo === 'DEVOLUCION')
+                .reduce((sum, b) => sum + Number(b.cantidad), 0);
+
+            const botellonesPrestados = Math.max(0, (cliente.botellonesIniciales || 0) + prestados - devueltos);
+
+            return { saldoDeuda, botellonesPrestados };
+        }
+
+        function getFilteredMovimientos() {
+            const fechaInicio = document.getElementById('filterFechaInicio').value;
+            const fechaFin = document.getElementById('filterFechaFin').value;
+
+            return movimientos.filter(m => {
+                if (fechaInicio && m.fecha < fechaInicio) return false;
+                if (fechaFin && m.fecha > fechaFin) return false;
+                return true;
+            });
+        }
+
+        // Navigation Controller
+        function switchTab(tabName) {
+            document.querySelectorAll('section[id^="sec-"]').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-brand-600', 'text-brand-600', 'font-semibold');
+                btn.classList.add('border-transparent', 'text-slate-500', 'font-medium');
+            });
+
+            document.getElementById(`sec-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('border-brand-600', 'text-brand-600', 'font-semibold');
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+
+            renderApp();
+        }
+
+        // RENDER MASTER
+        function renderApp() {
+            renderDashboard();
+            renderInventario();
+            renderVentas();
+            renderCompras();
+            renderClientes();
+            renderMovimientos();
+            renderMovBotellones();
+            populateSelects();
+        }
+
+        // 1. DASHBOARD
+        function renderDashboard() {
+            const filteredMovs = getFilteredMovimientos();
+
+            const totalIngresos = filteredMovs
+                .filter(m => m.tipo === 'INGRESO')
+                .reduce((sum, m) => sum + Number(m.monto), 0);
+
+            const totalEgresos = filteredMovs
+                .filter(m => m.tipo === 'EGRESO')
+                .reduce((sum, m) => sum + Number(m.monto), 0);
+
+            const balance = totalIngresos - totalEgresos;
+
+            let totalPorCobrar = 0;
+            let clientesDeudoresCount = 0;
+            let totalBotellonesCalle = 0;
+
+            const clientesStats = clientes.map(c => {
+                const stats = getClienteCalculatedData(c.id);
+                if (stats.saldoDeuda > 0) {
+                    totalPorCobrar += stats.saldoDeuda;
+                    clientesDeudoresCount++;
+                }
+                totalBotellonesCalle += stats.botellonesPrestados;
+                return { ...c, ...stats };
+            });
+
+            document.getElementById('kpiIngresos').innerText = formatMoney(totalIngresos);
+            document.getElementById('kpiEgresos').innerText = formatMoney(totalEgresos);
+            document.getElementById('kpiBalance').innerText = formatMoney(balance);
+            document.getElementById('kpiPorCobrar').innerText = formatMoney(totalPorCobrar);
+            document.getElementById('kpiClientesDeudoresCount').innerText = `${clientesDeudoresCount} cliente(s) deben`;
+            document.getElementById('kpiBotellonesCalle').innerText = `${totalBotellonesCalle} envases`;
+
+            // Dashboard Inventory critical list
+            const stockHtml = inventario.map(item => {
+                const esBajo = item.stock <= item.stockMin;
+                return `
+                    <div class="flex items-center justify-between p-2 rounded-lg ${esBajo ? 'bg-rose-50 border border-rose-200' : 'bg-slate-50'}">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-800">${item.nombre}</p>
+                            <p class="text-[10px] text-slate-500">Mínimo sugerido: ${item.stockMin} ${item.unidad}</p>
+                        </div>
+                        <span class="text-xs font-bold ${esBajo ? 'text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full' : 'text-slate-700'}">
+                            ${item.stock} ${item.unidad}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('dashStockList').innerHTML = stockHtml || '<p class="text-xs text-slate-400">Sin ítems en inventario.</p>';
+
+            // Top Deudores
+            const topDeudores = [...clientesStats]
+                .filter(c => c.saldoDeuda > 0)
+                .sort((a, b) => b.saldoDeuda - a.saldoDeuda)
+                .slice(0, 4);
+
+            document.getElementById('dashTableDeudores').innerHTML = topDeudores.length ? topDeudores.map(c => `
+                <tr>
+                    <td class="py-2 px-3 font-medium text-slate-800">${c.nombre}</td>
+                    <td class="py-2 px-3 text-right font-bold text-amber-600">${formatMoney(c.saldoDeuda)}</td>
+                    <td class="py-2 px-3 text-center">
+                        <button onclick="abrirAbonoRapido('${c.id}')" class="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-1 rounded font-medium">Abonar</button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="3" class="py-4 text-center text-xs text-slate-400">Sin deudas pendientes</td></tr>`;
+
+            // Top Botellones
+            const topBotellones = [...clientesStats]
+                .filter(c => c.botellonesPrestados > 0)
+                .sort((a, b) => b.botellonesPrestados - a.botellonesPrestados)
+                .slice(0, 4);
+
+            document.getElementById('dashTableBotellones').innerHTML = topBotellones.length ? topBotellones.map(c => `
+                <tr>
+                    <td class="py-2 px-3 font-medium text-slate-800">${c.nombre}</td>
+                    <td class="py-2 px-3 text-right font-bold text-cyan-600">${c.botellonesPrestados} envases</td>
+                    <td class="py-2 px-3 text-center">
+                        <button onclick="switchTab('botellones')" class="text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-800 px-2 py-1 rounded font-medium">Ver</button>
+                    </td>
+                </tr>
+            `).join('') : `<tr><td colspan="3" class="py-4 text-center text-xs text-slate-400">Sin botellones prestados</td></tr>`;
+
+            // Ultimos Movs
+            const ultimos = [...filteredMovs].reverse().slice(0, 5);
+            document.getElementById('dashTableUltimosMovs').innerHTML = ultimos.length ? ultimos.map(m => {
+                const cli = clientes.find(c => c.id === m.clienteId);
+                const isIngreso = m.tipo === 'INGRESO';
+                return `
+                    <tr>
+                        <td class="py-2 px-3 text-slate-500 text-xs">${m.fecha}</td>
+                        <td class="py-2 px-3">
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${isIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                                ${m.tipo}
+                            </span>
+                        </td>
+                        <td class="py-2 px-3 font-medium text-slate-700">${cli ? cli.nombre : (m.detalle || 'General')}</td>
+                        <td class="py-2 px-3 text-slate-500 text-xs">${m.categoria}</td>
+                        <td class="py-2 px-3 text-right font-bold ${isIngreso ? 'text-emerald-600' : 'text-slate-800'}">
+                            ${isIngreso ? '+' : '-'}${formatMoney(m.monto)}
+                        </td>
+                    </tr>
+                `;
+            }).join('') : `<tr><td colspan="5" class="py-4 text-center text-xs text-slate-400">Sin movimientos registrados</td></tr>`;
+        }
+
+        // 2. INVENTARIO
+        function renderInventario() {
+            const container = document.getElementById('inventarioCards');
+
+            if (inventario.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400">No hay ítems en inventario.</div>`;
+                return;
+            }
+
+            container.innerHTML = inventario.map(item => {
+                const esBajo = item.stock <= item.stockMin;
+                return `
+                    <div class="bg-white rounded-xl p-5 shadow-sm border ${esBajo ? 'border-rose-300 ring-2 ring-rose-100' : 'border-slate-200'} relative flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${item.categoria === 'INSUMO' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}">
+                                    ${item.categoria}
+                                </span>
+                                ${esBajo ? '<span class="text-xs font-bold text-rose-600 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Stock Bajo</span>' : ''}
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base mb-1">${item.nombre}</h4>
+                            <p class="text-xs text-slate-400 mb-4">Stock Mínimo recomendado: ${item.stockMin} ${item.unidad}</p>
+                        </div>
+                        <div class="flex justify-between items-end border-t border-slate-100 pt-3 mt-2">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Stock Actual</span>
+                                <span class="text-2xl font-black ${esBajo ? 'text-rose-600' : 'text-slate-800'}">${item.stock} <span class="text-xs font-normal text-slate-500">${item.unidad}</span></span>
+                            </div>
+                            <button onclick="eliminarItemInventario('${item.id}')" title="Eliminar Ítem" class="text-slate-400 hover:text-rose-600 text-xs p-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 3. VENTAS (POS)
+        function renderVentas() {
+            const search = document.getElementById('searchVenta').value.toLowerCase();
+            const tbody = document.getElementById('listaVentas');
+
+            const filtered = ventas.filter(v => {
+                const cli = clientes.find(c => c.id === v.clienteId);
+                const cliNombre = cli ? cli.nombre.toLowerCase() : '';
+                return cliNombre.includes(search) || v.id.toLowerCase().includes(search);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">No hay ventas registradas.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = [...filtered].reverse().map(v => {
+                const cli = clientes.find(c => c.id === v.clienteId);
+                const isCredito = v.formaPago === 'CREDITO';
+                const detalleTxt = v.items.map(i => `${i.cant}x ${i.nombre}`).join(', ');
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-mono text-xs text-slate-500">
+                            <div>${v.id}</div>
+                            <div class="text-[10px] text-slate-400">${v.fecha}</div>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${cli ? cli.nombre : 'Cliente Mostrador'}</td>
+                        <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate">${detalleTxt}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isCredito ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                                ${isCredito ? 'A Crédito' : 'Contado'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-800">${formatMoney(v.total)}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="eliminarVenta('${v.id}')" class="text-rose-500 hover:text-rose-700 p-1 text-xs" title="Eliminar Venta">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 4. COMPRAS
+        function renderCompras() {
+            const tbody = document.getElementById('listaCompras');
+
+            if (compras.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No hay compras registradas a proveedores.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = [...compras].reverse().map(c => {
+                const item = inventario.find(i => i.id === c.itemId);
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-xs text-slate-500">${c.fecha}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${c.proveedor}</td>
+                        <td class="py-3 px-4 text-xs text-slate-700">${item ? item.nombre : 'Ítem eliminado'}</td>
+                        <td class="py-3 px-4 text-center font-bold text-slate-800">${c.cantidad}</td>
+                        <td class="py-3 px-4 text-right text-xs text-slate-600">${formatMoney(c.precioUnit)}</td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-800">${formatMoney(c.total)}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="eliminarCompra('${c.id}')" class="text-rose-500 hover:text-rose-700 p-1 text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 5. CLIENTES
+        function renderClientes() {
+            const search = document.getElementById('searchCliente').value.toLowerCase();
+            const tbody = document.getElementById('listaClientes');
+
+            const filtered = clientes.filter(c => 
+                c.nombre.toLowerCase().includes(search) || 
+                (c.telefono && c.telefono.includes(search))
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">No se encontraron clientes.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(c => {
+                const stats = getClienteCalculatedData(c.id);
+                const tieneDeuda = stats.saldoDeuda > 0;
+                const tieneBotellones = stats.botellonesPrestados > 0;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 font-semibold text-slate-800">${c.nombre}</td>
+                        <td class="py-3 px-4 text-xs text-slate-500">
+                            <div><i class="fa-solid fa-phone text-slate-400 mr-1"></i> ${c.telefono || 'Sin tel.'}</div>
+                            <div class="truncate max-w-xs text-slate-400">${c.direccion || ''}</div>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${tieneDeuda ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600'}">
+                                ${formatMoney(stats.saldoDeuda)}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${tieneBotellones ? 'bg-cyan-100 text-cyan-800 border border-cyan-200' : 'bg-slate-100 text-slate-600'}">
+                                ${stats.botellonesPrestados} bot.
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="abrirAbonoRapido('${c.id}')" title="Abonar" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-medium border border-emerald-200">
+                                    <i class="fa-solid fa-dollar-sign"></i> Abono
+                                </button>
+                                <button onclick="editarCliente('${c.id}')" title="Editar" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                ${c.id !== 'cli-gen' ? `
+                                <button onclick="eliminarCliente('${c.id}')" title="Eliminar" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 6. FLUJO DE CAJA
+        function renderMovimientos() {
+            const search = document.getElementById('searchMov').value.toLowerCase();
+            const filterTipo = document.getElementById('filterTipoMov').value;
+            const filteredByDate = getFilteredMovimientos();
+
+            const tbody = document.getElementById('listaMovimientos');
+
+            const filtered = filteredByDate.filter(m => {
+                if (filterTipo !== 'TODOS' && m.tipo !== filterTipo) return false;
+                
+                const cli = clientes.find(c => c.id === m.clienteId);
+                const cliNombre = cli ? cli.nombre.toLowerCase() : '';
+                const detalle = (m.detalle || '').toLowerCase();
+                const cat = (m.categoria || '').toLowerCase();
+
+                return cliNombre.includes(search) || detalle.includes(search) || cat.includes(search);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">No hay movimientos registrados.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.reverse().map(m => {
+                const cli = clientes.find(c => c.id === m.clienteId);
+                const isIngreso = m.tipo === 'INGRESO';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-xs text-slate-500 font-medium">${m.fecha}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isIngreso ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${m.tipo}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-800">
+                            ${cli ? cli.nombre : '<span class="text-slate-400 italic">General / Insumos</span>'}
+                        </td>
+                        <td class="py-3 px-4 text-xs text-slate-600">
+                            <span class="font-semibold text-slate-700 block">${m.categoria}</span>
+                            <span class="text-slate-400">${m.detalle || ''}</span>
+                        </td>
+                        <td class="py-3 px-4 text-right font-bold text-sm ${isIngreso ? 'text-emerald-600' : 'text-slate-800'}">
+                            ${isIngreso ? '+' : '-'}${formatMoney(m.monto)}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="eliminarMovimiento('${m.id}')" class="text-rose-500 hover:text-rose-700 p-1 text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 7. BOTELLONES
+        function renderMovBotellones() {
+            const tbody = document.getElementById('listaMovBotellones');
+            if (botellones.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">No hay registros de botellones.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = [...botellones].reverse().map(b => {
+                const cli = clientes.find(c => c.id === b.clienteId);
+                const isPrestamo = b.tipo === 'PRESTAMO';
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-xs text-slate-500">${b.fecha}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">${cli ? cli.nombre : 'Desconocido'}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isPrestamo ? 'bg-cyan-100 text-cyan-800' : 'bg-teal-100 text-teal-800'}">
+                                ${isPrestamo ? 'Préstamo / Entrega (+)' : 'Devolución (-)'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center font-bold text-slate-800">${b.cantidad}</td>
+                        <td class="py-3 px-4 text-xs text-slate-500">${b.nota || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="eliminarMovBotellon('${b.id}')" class="text-rose-500 hover:text-rose-700 p-1 text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // POPULATE SELECT OPTIONS
+        function populateSelects() {
+            const clienteOpts = clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+            document.getElementById('movClienteId').innerHTML = `<option value="">-- General / Sin Cliente --</option>` + clienteOpts;
+            document.getElementById('botClienteId').innerHTML = `<option value="" disabled selected>Seleccione Cliente...</option>` + clienteOpts;
+            document.getElementById('vtaClienteId').innerHTML = clienteOpts;
+
+            const invOpts = inventario.map(i => `<option value="${i.id}">${i.nombre} (Stock: ${i.stock})</option>`).join('');
+            document.getElementById('cmpItemId').innerHTML = invOpts;
+            document.getElementById('ajusteItemId').innerHTML = invOpts;
+
+            actualizarCategoriasMov();
+        }
+
+        function actualizarCategoriasMov() {
+            const tipo = document.getElementById('movTipo').value;
+            const catSelect = document.getElementById('movCategoria');
+
+            const catIngreso = ['Venta POS Agua', 'Abono de Cliente', 'Venta Directa', 'Otros Ingresos'];
+            const catEgreso = ['Compra de Insumos', 'Combustible / Vehículo', 'Mantenimiento Planta', 'Nómina / Sueldos', 'Servicios Básicos', 'Otros Gastos'];
+
+            const list = tipo === 'INGRESO' ? catIngreso : catEgreso;
+            catSelect.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        // POS LOGIC (POS ITEM MANAGEMENT)
+        function agregarItemVenta() {
+            const sel = document.getElementById('vtaProductoId');
+            const pId = sel.value;
+            const pName = sel.options[sel.selectedIndex].text.split(' ($')[0];
+            const pPrecio = parseFloat(sel.options[sel.selectedIndex].dataset.precio);
+            const cant = parseInt(document.getElementById('vtaCant').value) || 1;
+
+            const existingIndex = currentVentaItems.findIndex(i => i.id === pId);
+            if (existingIndex !== -1) {
+                currentVentaItems[existingIndex].cant += cant;
+            } else {
+                currentVentaItems.push({ id: pId, nombre: pName, precio: pPrecio, cant: cant });
+            }
+
+            renderTablaItemsVenta();
+        }
+
+        function quitarItemVenta(index) {
+            currentVentaItems.splice(index, 1);
+            renderTablaItemsVenta();
+        }
+
+        function renderTablaItemsVenta() {
+            const tbody = document.getElementById('vtaTablaItems');
+            let total = 0;
+
+            if (currentVentaItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-400">Ningún producto añadido.</td></tr>`;
+                document.getElementById('vtaTotalTxt').innerText = '$0.00';
+                return;
+            }
+
+            tbody.innerHTML = currentVentaItems.map((item, idx) => {
+                const sub = item.precio * item.cant;
+                total += sub;
+                return `
+                    <tr>
+                        <td class="py-1.5 px-2 font-medium">${item.nombre}</td>
+                        <td class="py-1.5 px-2 text-center font-bold">${item.cant}</td>
+                        <td class="py-1.5 px-2 text-right">${formatMoney(item.precio)}</td>
+                        <td class="py-1.5 px-2 text-right font-bold">${formatMoney(sub)}</td>
+                        <td class="py-1.5 px-2 text-center">
+                            <button type="button" onclick="quitarItemVenta(${idx})" class="text-rose-500 hover:text-rose-700">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('vtaTotalTxt').innerText = formatMoney(total);
+        }
+
+        function guardarVenta(e) {
+            e.preventDefault();
+            if (currentVentaItems.length === 0) {
+                showToast('Agregue al menos un producto a la venta', true);
+                return;
+            }
+
+            const clienteId = document.getElementById('vtaClienteId').value;
+            const fecha = document.getElementById('vtaFecha').value;
+            const formaPago = document.getElementById('vtaFormaPago').value;
+            const botellonesPrestados = parseInt(document.getElementById('vtaBotellonesPrestados').value) || 0;
+
+            const total = currentVentaItems.reduce((sum, i) => sum + (i.precio * i.cant), 0);
+
+            const ventaId = 'VTA-' + Math.floor(1000 + Math.random() * 9000);
+
+            const newVenta = {
+                id: ventaId,
+                fecha,
+                clienteId,
+                items: [...currentVentaItems],
+                formaPago,
+                total
+            };
+
+            // 1. Guardar Venta
+            ventas.push(newVenta);
+
+            // 2. Si es Contado, genera Ingreso de dinero en Caja
+            if (formaPago === 'CONTADO') {
+                movimientos.push({
+                    id: 'mov-' + Date.now(),
+                    fecha,
+                    tipo: 'INGRESO',
+                    clienteId,
+                    categoria: 'Venta POS Agua',
+                    monto: total,
+                    detalle: `Venta POS Folio ${ventaId}`
+                });
+            }
+
+            // 3. Si hay botellones prestados en la transacción, registrarlos
+            if (botellonesPrestados > 0) {
+                botellones.push({
+                    id: 'bot-' + Date.now(),
+                    fecha,
+                    clienteId,
+                    tipo: 'PRESTAMO',
+                    cantidad: botellonesPrestados,
+                    nota: `Préstamo por Venta ${ventaId}`
+                });
+            }
+
+            // 4. Descuento automático de stock en inventario
+            currentVentaItems.forEach(item => {
+                if (item.id === 'REC_20L') {
+                    descontarStock('Tapas Azules Antiderrames', item.cant);
+                    descontarStock('Sellos Térmicos de Seguridad', item.cant);
+                    descontarStock('Botellones Llenos 20L', item.cant);
+                } else if (item.id === 'BOT_NUEVO_20L') {
+                    descontarStock('Tapas Azules Antiderrames', item.cant);
+                    descontarStock('Sellos Térmicos de Seguridad', item.cant);
+                } else if (item.id === 'POUCH_AGUA') {
+                    descontarStock('Fundas/Pouch 500ml', item.cant);
+                }
+            });
+
+            saveData();
+            closeModal('modalVenta');
+            currentVentaItems = [];
+            renderTablaItemsVenta();
+            renderApp();
+            showToast(`Venta ${ventaId} completada con éxito`);
+        }
+
+        function descontarStock(nombreItem, cantidad) {
+            const item = inventario.find(i => i.nombre.toLowerCase().includes(nombreItem.toLowerCase()));
+            if (item) {
+                item.stock = Math.max(0, item.stock - cantidad);
+            }
+        }
+
+        function eliminarVenta(id) {
+            if (confirm('¿Desea anular esta venta?')) {
+                ventas = ventas.filter(v => v.id !== id);
+                saveData();
+                renderApp();
+                showToast('Venta eliminada');
+            }
+        }
+
+        // COMPRAS LOGIC
+        function calcTotalCompra() {
+            const cant = parseFloat(document.getElementById('cmpCantidad').value) || 0;
+            const precio = parseFloat(document.getElementById('cmpPrecioUnit').value) || 0;
+            document.getElementById('cmpTotal').value = (cant * precio).toFixed(2);
+        }
+
+        function guardarCompra(e) {
+            e.preventDefault();
+            const proveedor = document.getElementById('cmpProveedor').value.trim();
+            const itemId = document.getElementById('cmpItemId').value;
+            const cantidad = parseInt(document.getElementById('cmpCantidad').value);
+            const precioUnit = parseFloat(document.getElementById('cmpPrecioUnit').value);
+            const total = parseFloat(document.getElementById('cmpTotal').value);
+            const fecha = document.getElementById('cmpFecha').value;
+
+            if (!itemId || !cantidad || !total) return;
+
+            const newCompra = {
+                id: 'cmp-' + Date.now(),
+                fecha,
+                proveedor,
+                itemId,
+                cantidad,
+                precioUnit,
+                total
+            };
+
+            compras.push(newCompra);
+
+            // 1. Incrementar Stock en Inventario
+            const item = inventario.find(i => i.id === itemId);
+            if (item) {
+                item.stock += cantidad;
+            }
+
+            // 2. Registrar Salida de Dinero (Egreso) en Caja
+            movimientos.push({
+                id: 'mov-' + Date.now(),
+                fecha,
+                tipo: 'EGRESO',
+                clienteId: '',
+                categoria: 'Compra de Insumos',
+                monto: total,
+                detalle: `Compra insumo: ${item ? item.nombre : ''} a ${proveedor}`
+            });
+
+            saveData();
+            closeModal('modalCompra');
+            document.getElementById('formCompra').reset();
+            renderApp();
+            showToast('Compra e inventario actualizados');
+        }
+
+        function eliminarCompra(id) {
+            if (confirm('¿Eliminar registro de compra?')) {
+                compras = compras.filter(c => c.id !== id);
+                saveData();
+                renderApp();
+                showToast('Registro de compra eliminado');
+            }
+        }
+
+        // AJUSTE INVENTARIO LOGIC
+        function guardarAjusteStock(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('ajusteItemId').value;
+            const tipo = document.getElementById('ajusteTipo').value;
+            const cantidad = parseInt(document.getElementById('ajusteCantidad').value);
+            const motivo = document.getElementById('ajusteMotivo').value;
+
+            const item = inventario.find(i => i.id === itemId);
+            if (item) {
+                if (tipo === 'RESTAR') {
+                    item.stock = Math.max(0, item.stock - cantidad);
+                } else {
+                    item.stock += cantidad;
+                }
+                saveData();
+                closeModal('modalAjusteStock');
+                renderApp();
+                showToast(`Stock ajustado: ${item.nombre}`);
+            }
+        }
+
+        function guardarNuevoItem(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('itemName').value.trim();
+            const categoria = document.getElementById('itemCategoria').value;
+            const unidad = document.getElementById('itemUnidad').value.trim();
+            const stock = parseInt(document.getElementById('itemStockInicial').value) || 0;
+            const stockMin = parseInt(document.getElementById('itemStockMin').value) || 10;
+
+            const newItem = {
+                id: 'inv-' + Date.now(),
+                nombre,
+                categoria,
+                stock,
+                stockMin,
+                unidad
+            };
+
+            inventario.push(newItem);
+            saveData();
+            closeModal('modalItemInventario');
+            document.getElementById('formNuevoItem').reset();
+            renderApp();
+            showToast('Nuevo ítem creado en inventario');
+        }
+
+        function eliminarItemInventario(id) {
+            if (confirm('¿Eliminar este producto del inventario?')) {
+                inventario = inventario.filter(i => i.id !== id);
+                saveData();
+                renderApp();
+                showToast('Ítem eliminado');
+            }
+        }
+
+        // MODALS CLIENTES & CAJA GENERAL
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId).classList.add('flex');
+            
+            if (modalId === 'modalMovimiento') document.getElementById('movFecha').value = getTodayDate();
+            if (modalId === 'modalBotellon') document.getElementById('botFecha').value = getTodayDate();
+            if (modalId === 'modalVenta') {
+                document.getElementById('vtaFecha').value = getTodayDate();
+                currentVentaItems = [];
+                renderTablaItemsVenta();
+            }
+            if (modalId === 'modalCompra') {
+                document.getElementById('cmpFecha').value = getTodayDate();
+                calcTotalCompra();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        function guardarCliente(e) {
+            e.preventDefault();
+            const id = document.getElementById('clienteId').value;
+            const nombre = document.getElementById('clienteNombre').value.trim();
+            const telefono = document.getElementById('clienteTelefono').value.trim();
+            const direccion = document.getElementById('clienteDireccion').value.trim();
+            const deudaInicial = parseFloat(document.getElementById('clienteDeudaInicial').value) || 0;
+            const botellonesIniciales = parseInt(document.getElementById('clienteBotellonesIniciales').value) || 0;
+
+            if (id) {
+                const index = clientes.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    clientes[index] = { ...clientes[index], nombre, telefono, direccion, deudaInicial, botellonesIniciales };
+                }
+            } else {
+                clientes.push({ id: 'cli-' + Date.now(), nombre, telefono, direccion, deudaInicial, botellonesIniciales });
+            }
+
+            saveData();
+            closeModal('modalCliente');
+            renderApp();
+            showToast('Cliente guardado con éxito');
+        }
+
+        function editarCliente(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (!cliente) return;
+            document.getElementById('clienteId').value = cliente.id;
+            document.getElementById('clienteNombre').value = cliente.nombre;
+            document.getElementById('clienteTelefono').value = cliente.telefono || '';
+            document.getElementById('clienteDireccion').value = cliente.direccion || '';
+            document.getElementById('clienteDeudaInicial').value = cliente.deudaInicial || 0;
+            document.getElementById('clienteBotellonesIniciales').value = cliente.botellonesIniciales || 0;
+            openModal('modalCliente');
+        }
+
+        function eliminarCliente(id) {
+            if (confirm('¿Eliminar cliente?')) {
+                clientes = clientes.filter(c => c.id !== id);
+                saveData();
+                renderApp();
+                showToast('Cliente eliminado');
+            }
+        }
+
+        function guardarMovimiento(e) {
+            e.preventDefault();
+            movimientos.push({
+                id: 'mov-' + Date.now(),
+                fecha: document.getElementById('movFecha').value,
+                tipo: document.getElementById('movTipo').value,
+                clienteId: document.getElementById('movClienteId').value,
+                categoria: document.getElementById('movCategoria').value,
+                monto: parseFloat(document.getElementById('movMonto').value),
+                detalle: document.getElementById('movDetalle').value.trim()
+            });
+            saveData();
+            closeModal('modalMovimiento');
+            renderApp();
+            showToast('Movimiento financiero guardado');
+        }
+
+        function eliminarMovimiento(id) {
+            if (confirm('¿Eliminar este movimiento de caja?')) {
+                movimientos = movimientos.filter(m => m.id !== id);
+                saveData();
+                renderApp();
+                showToast('Movimiento eliminado');
+            }
+        }
+
+        function guardarMovBotellon(e) {
+            e.preventDefault();
+            botellones.push({
+                id: 'bot-' + Date.now(),
+                fecha: document.getElementById('botFecha').value,
+                clienteId: document.getElementById('botClienteId').value,
+                tipo: document.getElementById('botTipo').value,
+                cantidad: parseInt(document.getElementById('botCantidad').value),
+                nota: document.getElementById('botNota').value.trim()
+            });
+            saveData();
+            closeModal('modalBotellon');
+            renderApp();
+            showToast('Control de envases actualizado');
+        }
+
+        function eliminarMovBotellon(id) {
+            if (confirm('¿Eliminar registro de envase?')) {
+                botellones = botellones.filter(b => b.id !== id);
+                saveData();
+                renderApp();
+                showToast('Registro eliminado');
+            }
+        }
+
+        function abrirAbonoRapido(clienteId) {
+            const cliente = clientes.find(c => c.id === clienteId);
+            if (!cliente) return;
+            document.getElementById('abonoClienteId').value = cliente.id;
+            document.getElementById('abonoClienteNombre').innerText = `Abonar a favor de: ${cliente.nombre}`;
+            openModal('modalAbonoRapido');
+        }
+
+        function guardarAbonoRapido(e) {
+            e.preventDefault();
+            const clienteId = document.getElementById('abonoClienteId').value;
+            const monto = parseFloat(document.getElementById('abonoMonto').value);
+            const nota = document.getElementById('abonoNota').value.trim();
+
+            movimientos.push({
+                id: 'mov-' + Date.now(),
+                fecha: getTodayDate(),
+                tipo: 'INGRESO',
+                clienteId: clienteId,
+                categoria: 'Abono de Cliente',
+                monto: monto,
+                detalle: nota
+            });
+
+            saveData();
+            closeModal('modalAbonoRapido');
+            renderApp();
+            showToast('Abono guardado correctamente');
+        }
+
+        function resetFiltros() {
+            document.getElementById('filterFechaInicio').value = '';
+            document.getElementById('filterFechaFin').value = '';
+            renderApp();
+        }
+
+        function exportData() {
+            const dump = { clientes, inventario, movimientos, botellones, ventas, compras, exportedAt: new Date().toISOString() };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dump, null, 2));
+            const anchor = document.createElement('a');
+            anchor.setAttribute("href", dataStr);
+            anchor.setAttribute("download", `aquacontrol_full_backup_${getTodayDate()}.json`);
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.clientes && parsed.inventario) {
+                        clientes = parsed.clientes;
+                        inventario = parsed.inventario;
+                        movimientos = parsed.movimientos || [];
+                        botellones = parsed.botellones || [];
+                        ventas = parsed.ventas || [];
+                        compras = parsed.compras || [];
+                        saveData();
+                        renderApp();
+                        showToast('Base de datos importada correctamente');
+                    } else {
+                        showToast('El formato del archivo JSON no es compatible', true);
+                    }
+                } catch(err) {
+                    showToast('Error al importar el archivo JSON', true);
+                }
+            };
+            if(event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        window.onload = function() {
+            loadData();
+            renderApp();
+        };
+    </script>
+</body>
+</html>
